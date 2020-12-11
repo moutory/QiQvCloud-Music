@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qiqv.music.dao.SingerMapper" >
+  <resultMap id="BaseResultMap" type="com.qiqv.music.pojo.Singer" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="singer_name" property="singerName" jdbcType="VARCHAR" />
+    <result column="singer_sex" property="singerSex" jdbcType="INTEGER" />
+    <result column="singer_pic" property="singerPic" jdbcType="VARCHAR" />
+    <result column="singer_birth" property="singerBirth" jdbcType="TIMESTAMP" />
+    <result column="singer_localtion" property="singerLocaltion" jdbcType="VARCHAR" />
+    <result column="singer_introduction" property="singerIntroduction" jdbcType="VARCHAR" />
+    <result column="insert_at" property="insertAt" jdbcType="TIMESTAMP" />
+    <result column="insert_by" property="insertBy" jdbcType="VARCHAR" />
+    <result column="update_at" property="updateAt" jdbcType="TIMESTAMP" />
+    <result column="update_by" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, singer_name, singer_sex, singer_pic, singer_birth, singer_localtion, singer_introduction,
+    insert_at, insert_by, update_at, update_by
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.qiqv.music.pojo.SingerExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from singer
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from singer
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from singer
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.qiqv.music.pojo.SingerExample" >
+    delete from singer
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.qiqv.music.pojo.Singer" >
+    insert into singer (id, singer_name, singer_sex,
+      singer_pic, singer_birth, singer_localtion,
+      singer_introduction, insert_at, insert_by,
+      update_at, update_by)
+    values (#{id,jdbcType=INTEGER}, #{singerName,jdbcType=VARCHAR}, #{singerSex,jdbcType=INTEGER},
+      #{singerPic,jdbcType=VARCHAR}, #{singerBirth,jdbcType=TIMESTAMP}, #{singerLocaltion,jdbcType=VARCHAR},
+      #{singerIntroduction,jdbcType=VARCHAR}, #{insertAt,jdbcType=TIMESTAMP}, #{insertBy,jdbcType=VARCHAR},
+      #{updateAt,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.qiqv.music.pojo.Singer" >
+    insert into singer
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="singerName != null" >
+        singer_name,
+      </if>
+      <if test="singerSex != null" >
+        singer_sex,
+      </if>
+      <if test="singerPic != null" >
+        singer_pic,
+      </if>
+      <if test="singerBirth != null" >
+        singer_birth,
+      </if>
+      <if test="singerLocaltion != null" >
+        singer_localtion,
+      </if>
+      <if test="singerIntroduction != null" >
+        singer_introduction,
+      </if>
+      <if test="insertAt != null" >
+        insert_at,
+      </if>
+      <if test="insertBy != null" >
+        insert_by,
+      </if>
+      <if test="updateAt != null" >
+        update_at,
+      </if>
+      <if test="updateBy != null" >
+        update_by,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="singerName != null" >
+        #{singerName,jdbcType=VARCHAR},
+      </if>
+      <if test="singerSex != null" >
+        #{singerSex,jdbcType=INTEGER},
+      </if>
+      <if test="singerPic != null" >
+        #{singerPic,jdbcType=VARCHAR},
+      </if>
+      <if test="singerBirth != null" >
+        #{singerBirth,jdbcType=TIMESTAMP},
+      </if>
+      <if test="singerLocaltion != null" >
+        #{singerLocaltion,jdbcType=VARCHAR},
+      </if>
+      <if test="singerIntroduction != null" >
+        #{singerIntroduction,jdbcType=VARCHAR},
+      </if>
+      <if test="insertAt != null" >
+        #{insertAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="insertBy != null" >
+        #{insertBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateAt != null" >
+        #{updateAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.qiqv.music.pojo.SingerExample" resultType="java.lang.Integer" >
+    select count(*) from singer
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update singer
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.singerName != null" >
+        singer_name = #{record.singerName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.singerSex != null" >
+        singer_sex = #{record.singerSex,jdbcType=INTEGER},
+      </if>
+      <if test="record.singerPic != null" >
+        singer_pic = #{record.singerPic,jdbcType=VARCHAR},
+      </if>
+      <if test="record.singerBirth != null" >
+        singer_birth = #{record.singerBirth,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.singerLocaltion != null" >
+        singer_localtion = #{record.singerLocaltion,jdbcType=VARCHAR},
+      </if>
+      <if test="record.singerIntroduction != null" >
+        singer_introduction = #{record.singerIntroduction,jdbcType=VARCHAR},
+      </if>
+      <if test="record.insertAt != null" >
+        insert_at = #{record.insertAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.insertBy != null" >
+        insert_by = #{record.insertBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateAt != null" >
+        update_at = #{record.updateAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateBy != null" >
+        update_by = #{record.updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update singer
+    set id = #{record.id,jdbcType=INTEGER},
+      singer_name = #{record.singerName,jdbcType=VARCHAR},
+      singer_sex = #{record.singerSex,jdbcType=INTEGER},
+      singer_pic = #{record.singerPic,jdbcType=VARCHAR},
+      singer_birth = #{record.singerBirth,jdbcType=TIMESTAMP},
+      singer_localtion = #{record.singerLocaltion,jdbcType=VARCHAR},
+      singer_introduction = #{record.singerIntroduction,jdbcType=VARCHAR},
+      insert_at = #{record.insertAt,jdbcType=TIMESTAMP},
+      insert_by = #{record.insertBy,jdbcType=VARCHAR},
+      update_at = #{record.updateAt,jdbcType=TIMESTAMP},
+      update_by = #{record.updateBy,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qiqv.music.pojo.Singer" >
+    update singer
+    <set >
+      <if test="singerName != null" >
+        singer_name = #{singerName,jdbcType=VARCHAR},
+      </if>
+      <if test="singerSex != null" >
+        singer_sex = #{singerSex,jdbcType=INTEGER},
+      </if>
+      <if test="singerPic != null" >
+        singer_pic = #{singerPic,jdbcType=VARCHAR},
+      </if>
+      <if test="singerBirth != null" >
+        singer_birth = #{singerBirth,jdbcType=TIMESTAMP},
+      </if>
+      <if test="singerLocaltion != null" >
+        singer_localtion = #{singerLocaltion,jdbcType=VARCHAR},
+      </if>
+      <if test="singerIntroduction != null" >
+        singer_introduction = #{singerIntroduction,jdbcType=VARCHAR},
+      </if>
+      <if test="insertAt != null" >
+        insert_at = #{insertAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="insertBy != null" >
+        insert_by = #{insertBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateAt != null" >
+        update_at = #{updateAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        update_by = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.qiqv.music.pojo.Singer" >
+    update singer
+    set singer_name = #{singerName,jdbcType=VARCHAR},
+      singer_sex = #{singerSex,jdbcType=INTEGER},
+      singer_pic = #{singerPic,jdbcType=VARCHAR},
+      singer_birth = #{singerBirth,jdbcType=TIMESTAMP},
+      singer_localtion = #{singerLocaltion,jdbcType=VARCHAR},
+      singer_introduction = #{singerIntroduction,jdbcType=VARCHAR},
+      insert_at = #{insertAt,jdbcType=TIMESTAMP},
+      insert_by = #{insertBy,jdbcType=VARCHAR},
+      update_at = #{updateAt,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!-- 根据歌手名模糊查询歌手 -->
+  <select id="querySingerByName"  parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from singer as s
+    where s.singer_name like #{singerName,jdbcType=VARCHAR}
+  </select>
+
+  <!-- 根据性别查询歌手信息 -->
+  <select id="querySingerBySex" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from singer as s
+    where s.singer_sex = #{sex,jdbcType=INTEGER}
+  </select>
+</mapper>
