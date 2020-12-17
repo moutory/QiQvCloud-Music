@@ -1,6 +1,7 @@
 package com.qiqv.music.service;
 
 import com.qiqv.music.pojo.Comment;
+import com.qiqv.music.pojo.vo.CommentVO;
 
 import java.util.List;
 
@@ -14,6 +15,11 @@ public interface CommentService {
      *修改
      */
     public boolean updateComment(Comment comment);
+
+    /**
+     *修改
+     */
+    public boolean likeComment(CommentVO commentVO);
 
     /**
      * 删除
@@ -46,4 +52,8 @@ public interface CommentService {
      * @return
      */
     boolean batchDeleteByCommentId(Integer[] batchDelForm);
+    /**
+     * 判断点赞行为是否合法,若合法，返回null
+     */
+    String isLegalLike(Integer commentId,Integer commentOwnerId,Integer flowerId);
 }

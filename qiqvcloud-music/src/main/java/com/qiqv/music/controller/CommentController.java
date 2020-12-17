@@ -1,6 +1,7 @@
 package com.qiqv.music.controller;
 
 import com.qiqv.music.pojo.Comment;
+import com.qiqv.music.pojo.vo.CommentVO;
 import com.qiqv.music.service.CommentService;
 import com.qiqv.music.utils.QiqvJSONResult;
 import org.apache.commons.lang3.StringUtils;
@@ -19,36 +20,38 @@ public class CommentController {
 
     /**
      * 添加评论
+     *
      * @param comment
      * @return
      */
     @PostMapping("/saveComment")
-    public QiqvJSONResult saveComment(@RequestBody Comment comment){
+    public QiqvJSONResult saveComment(@RequestBody Comment comment) {
         String errorMsg = this.commentDataCheck(comment);
-        if(errorMsg == null) {
-            if(null == comment.getCreateTime()){
+        if (errorMsg == null) {
+            if (null == comment.getCreateTime()) {
                 comment.setCreateTime(new Date());
             }
             boolean isSuccess = commentService.insertComment(comment);
-            if(isSuccess){
+            if (isSuccess) {
                 return QiqvJSONResult.ok();
             }
-                return QiqvJSONResult.errorMsg("评论失败");
+            return QiqvJSONResult.errorMsg("评论失败");
         }
         return QiqvJSONResult.errorMsg(errorMsg);
     }
 
     /**
      * 修改评论
+     *
      * @param comment
      * @return
      */
     @PostMapping("/updateComment")
-    public QiqvJSONResult updateComment(@RequestBody Comment comment){
+    public QiqvJSONResult updateComment(@RequestBody Comment comment) {
         String errorMsg = this.commentDataCheck(comment);
-        if(errorMsg == null) {
+        if (errorMsg == null) {
             boolean isSuccess = commentService.updateComment(comment);
-            if(isSuccess){
+            if (isSuccess) {
                 return QiqvJSONResult.ok();
             }
             return QiqvJSONResult.errorMsg("修改评论失败");
@@ -58,17 +61,18 @@ public class CommentController {
 
     /**
      * 删除评论
+     *
      * @param comment
      * @return
      */
     @PostMapping("/delComment")
-    public QiqvJSONResult delComment(@RequestBody Comment comment){
-        if(comment.getId()==null){
+    public QiqvJSONResult delComment(@RequestBody Comment comment) {
+        if (comment.getId() == null) {
             return QiqvJSONResult.errorMsg("请选择要删除的评论");
         }
 
         boolean isSuccess = commentService.deleteCommentById(comment.getId());
-        if(isSuccess){
+        if (isSuccess) {
             return QiqvJSONResult.ok();
         }
         return QiqvJSONResult.errorMsg("删除评论失败");
@@ -76,10 +80,11 @@ public class CommentController {
 
     /**
      * 根据id查询评论
+     *
      * @param commentId
      * @return
      */
-    @RequestMapping(path="/qureyCommentById",method = RequestMethod.GET)
+    @RequestMapping(path = "/qureyCommentById", method = RequestMethod.GET)
     public QiqvJSONResult qureyCommentById(Integer commentId) {
         if (commentId == null) {
             return QiqvJSONResult.errorMsg("请选择要查询的评论");
@@ -93,9 +98,10 @@ public class CommentController {
 
     /**
      * 查询所有评论
+     *
      * @return
      */
-    @RequestMapping(path="/allComment",method = RequestMethod.GET)
+    @RequestMapping(path = "/allComment", method = RequestMethod.GET)
     public QiqvJSONResult allComment() {
         List<Comment> comments = commentService.allComment();
         if (comments == null || comments.isEmpty()) {
@@ -106,9 +112,10 @@ public class CommentController {
 
     /**
      * 查询指定歌曲的所有评论
+     *
      * @return
      */
-    @RequestMapping(path="/queryCommentBySongId",method = RequestMethod.GET)
+    @RequestMapping(path = "/queryCommentBySongId", method = RequestMethod.GET)
     public QiqvJSONResult queryCommentBySongId(Integer songId) {
         if (songId == null) {
             return QiqvJSONResult.errorMsg("缺少歌曲Id");
@@ -122,9 +129,10 @@ public class CommentController {
 
     /**
      * 查询指定歌单的所有评论
+     *
      * @return
      */
-    @RequestMapping(path="/queryCommentBySongListId",method = RequestMethod.GET)
+    @RequestMapping(path = "/queryCommentBySongListId", method = RequestMethod.GET)
     public QiqvJSONResult queryCommentBySongListId(Integer songListId) {
         if (songListId == null) {
             return QiqvJSONResult.errorMsg("缺少歌单Id");
@@ -138,56 +146,71 @@ public class CommentController {
 
     /**
      * 给某个评论点赞
-     * @param comment
+     *
+     * @param commentVO
      * @return
      */
     @PostMapping("/likeComment")
-    public QiqvJSONResult likeComment(@RequestBody Comment comment){
-        if(comment.getId()==null){
-            return QiqvJSONResult.errorMsg("请选择要点赞的评论");
+    public QiqvJSONResult likeComment(@RequestBody CommentVO commentVO) {
+        String result = commentLikeDataCheck(commentVO);
+        if (result == null) {
+            boolean isSuccess = commentService.likeComment(commentVO);
+            if (isSuccess) {
+                return QiqvJSONResult.ok();
+            }
+            return QiqvJSONResult.errorMsg("点赞失败");
         }
-        boolean isSuccess = commentService.updateComment(comment);
-        if(isSuccess){
-            return QiqvJSONResult.ok();
-        }
-        return QiqvJSONResult.errorMsg("点赞失败");
+        return QiqvJSONResult.errorMsg(result);
     }
 
     /**
      * 批量删除评论
+     *
      * @param batchDelForm
      * @return
      */
     @PostMapping("/batchDeleteSelComments")
-    public QiqvJSONResult batchDeleteSelComments(@RequestBody Integer[] batchDelForm){
-        if(batchDelForm == null || batchDelForm.length == 0){
+    public QiqvJSONResult batchDeleteSelComments(@RequestBody Integer[] batchDelForm) {
+        if (batchDelForm == null || batchDelForm.length == 0) {
             return QiqvJSONResult.errorMsg("请输入批量删除的id号");
         }
         boolean isSuccess = commentService.batchDeleteByCommentId(batchDelForm);
-        if(isSuccess){
+        if (isSuccess) {
             return QiqvJSONResult.ok();
         }
         return QiqvJSONResult.errorMsg("批量删除失败");
-     }
-
-
+    }
 
 
     private String commentDataCheck(Comment comment) {
-        if(comment == null){
+        if (comment == null) {
             return "评论失败";
         }
-        if(StringUtils.isBlank(comment.getContent())){
+        if (StringUtils.isBlank(comment.getContent())) {
             return "评论内容为空";
         }
-        if(comment.getUserId()==0 || null == comment.getUserId()){
+        if (comment.getUserId() == 0 || null == comment.getUserId()) {
             return "缺少用户Id";
         }
-        if(comment.getType() == null){
+        if (comment.getType() == null) {
             return "未指定评论对象";
         }
-        if(comment.getSongId() == null && comment.getSongListId() == null){
+        if (comment.getSongId() == null && comment.getSongListId() == null) {
             return "未指定评论对象";
+        }
+        return null;
+    }
+
+    private String commentLikeDataCheck(CommentVO commentVO) {
+        if (commentVO.getId() == null) {
+            return "请选择要点赞的评论";
+        }
+        if (commentVO.getFlowerId() == null) {
+            return "缺少点赞用户id或用户未登录";
+        }
+        String result = commentService.isLegalLike(commentVO.getId(), commentVO.getUserId(), commentVO.getFlowerId());
+        if (StringUtils.isNotBlank(result)) {
+            return result;
         }
         return null;
     }
