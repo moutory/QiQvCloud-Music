@@ -45,6 +45,15 @@ public class QiqvJSONResult {
     }
 
 
+    /**
+     * 请求失败，用户未登录
+     * @param msg
+     * @return
+     */
+    public static QiqvJSONResult noAuth(String msg){
+        return new QiqvJSONResult(401,msg,null);
+    }
+
     public QiqvJSONResult(Object data){
         this.code=200;
         this.msg="SUCCESS";

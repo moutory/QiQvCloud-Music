@@ -1,10 +1,12 @@
 package com.qiqv.music.controller;
 
 import com.qiqv.music.pojo.Consumer;
+import com.qiqv.music.pojo.vo.ConsumerVO;
 import com.qiqv.music.service.ConsumerService;
 import com.qiqv.music.utils.MD5Utils;
 import com.qiqv.music.utils.QiqvJSONResult;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,13 +15,15 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("consumer")
-public class ConsumerController {
+public class ConsumerController extends BasicController{
 
     @Autowired
     private ConsumerService consumerService;
+
 
     @RequestMapping(method = RequestMethod.GET,path = "/getAllConsumer")
     public QiqvJSONResult getAllConsumer(){
@@ -141,8 +145,16 @@ public class ConsumerController {
         }
         Consumer result = consumerService.consumerLogin(consumer.getUsername(),
                 MD5Utils.getEnCryptionStrByMD5(consumer.getPassword()));
+        // 如果通过校验，则给用户新建一个token
         if(result != null){
-            return QiqvJSONResult.ok(result);
+            String userToken = UUID.randomUUID().toString();
+            // token有效期为半小时
+            redisOperator.setValue(USER_TOKEN_SESSION + ":" + result.getId(),userToken,60*30);
+            ConsumerVO consumerVO = new ConsumerVO();
+            BeanUtils.copyProperties(result,consumerVO);
+            consumerVO.setPassword("");
+            consumerVO.setUserToken(userToken);
+            return QiqvJSONResult.ok(consumerVO);
         }
         return QiqvJSONResult.errorMsg("账号或密码错误，请重新输入");
     }
