@@ -23,7 +23,7 @@
                         <li class="content">{{item.content}}</li>
                     </ul>
                 </div>
-                <div class="up" ref="up" @click="postUp(item.id,item.up,index)">
+                <div class="up" ref="up" @click="postUp(item.id,item.up,item.userId,index)">
                     <svg class="icon">
                         <use xlink:href="#icon-zan"></use>
                     </svg>
@@ -49,6 +49,7 @@ export default {
             'avator', //用户头像
             'loginIn',
             'userId',
+            'flowerId'
         ])
     },
     data(){
@@ -62,6 +63,7 @@ export default {
             updateCommentForm:{
                 id: '',
                 up: 0,
+                flowerId: '',
             },
             commentData: [],    //评论内容
             userPic: [],        //用户头像
@@ -143,18 +145,26 @@ export default {
         /**
          * 给某个评论点赞
          */
-        postUp(commentId,upNumber,index){
+        postUp(commentId,upNumber,commentOwerId,index){
             var that = this;
             if(that.loginIn){
                 if(commentId){
+                    if(commentOwerId == that.userId){
+                        this.$message.error('您不能给自己的评论点赞');
+                        return;
+                    }
                     that.updateCommentForm.id = commentId;
                     that.updateCommentForm.up = upNumber+1;
+                    that.updateCommentForm.userId = commentOwerId;
+                    that.updateCommentForm.flowerId = that.userId;
                     var commentJson = JSON.stringify(this.updateCommentForm);
                     setLikeComment(commentJson).then(res => {
                         if(res.code == 200 ){
                         that.$refs.up[index].children[0].style.color = '#2796cd';
                         that.getComment();
                         }else if(res.code == 500 && res.msg){
+                            that.$message.error(res.msg);    
+                        }else if(res.code == 401 && res.msg){
                             that.$message.error(res.msg);    
                         }else{
                             that.$message.error('点赞评论失败')
