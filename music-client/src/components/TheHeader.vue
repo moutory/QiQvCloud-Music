@@ -113,6 +113,8 @@ export default {
             if(path == 0){
                 this.$store.commit('setLoginIn',false);
                 this.$store.commit('setIsActive',false);//退出后，歌曲收藏关系重新初始化为未收藏
+                this.$store.commit('setUserId','');
+                this.$store.commit('setUserToken','');
                 this.$router.go(0);
             }else{
                 this.$router.push({path : path});

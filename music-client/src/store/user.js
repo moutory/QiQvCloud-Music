@@ -3,6 +3,7 @@ const user = {
         avator: '',
         username: '',
         userId: '',
+        userToken: '',  // 用户token，用户确认当前用户是否登录
     },
     getters: {
         avator: state => {
@@ -26,6 +27,13 @@ const user = {
             }
             return userId;
         },
+        userToken: state => {
+            let userToken = state.userToken;
+            if(!userToken){
+                userToken = JSON.parse(window.sessionStorage.getItem('userToken'));
+            }
+            return userToken;
+        },
     },
     mutations: {
         setAvator: (state,avator) => {
@@ -39,6 +47,10 @@ const user = {
         setUserId: (state,userId) => {
             state.userId = userId;
             window.sessionStorage.setItem('userId',JSON.stringify(userId));
+        }, 
+        setUserToken: (state,userToken) => {
+            state.userToken = userToken;
+            window.sessionStorage.setItem('userToken',JSON.stringify(userToken));
         }, 
     }
 }

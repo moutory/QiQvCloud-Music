@@ -59,6 +59,8 @@ export default {
                         if(res.code == 200 && res.data){
                             let consumer = res.data;
                             that.notify('登录成功','success');
+                            that.$store.commit('setUserToken',consumer.userToken);
+                            console.log(window.sessionStorage.getItem('userToken'));
                             that.$store.commit('setLoginIn',true);
                             that.$store.commit('setAvator',consumer.avator);
                             that.$store.commit('setUsername',consumer.username);
