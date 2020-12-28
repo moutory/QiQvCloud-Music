@@ -3,6 +3,7 @@ package com.qiqv.music.controller;
 import com.qiqv.music.pojo.Consumer;
 import com.qiqv.music.pojo.vo.ConsumerVO;
 import com.qiqv.music.service.ConsumerService;
+import com.qiqv.music.utils.EmailValidator;
 import com.qiqv.music.utils.MD5Utils;
 import com.qiqv.music.utils.QiqvJSONResult;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,8 @@ public class ConsumerController extends BasicController{
 
     @Autowired
     private ConsumerService consumerService;
+    @Autowired
+    private EmailValidator emailValidator;
 
 
     @RequestMapping(method = RequestMethod.GET,path = "/getAllConsumer")
@@ -86,14 +89,15 @@ public class ConsumerController extends BasicController{
      */
     @PostMapping("/updateConsumer")
     public QiqvJSONResult updateConsumer(@RequestBody Consumer consumer){
-        if(consumer==null || consumer.getId()==null){
-            return QiqvJSONResult.errorMsg("更新失败,缺少用户id");
+        String msg = updateDataCheck(consumer);
+        if(msg == null){
+            boolean updateSuccess = consumerService.updateConsumer(consumer);
+            if(updateSuccess){
+                return QiqvJSONResult.ok();
+            }
+            return QiqvJSONResult.errorMsg("更新失败");
         }
-        boolean updateSuccess = consumerService.updateConsumer(consumer);
-        if(updateSuccess){
-            return QiqvJSONResult.ok();
-        }
-        return QiqvJSONResult.errorMsg("更新失败");
+        return QiqvJSONResult.errorMsg(msg);
     }
 
     /**
@@ -174,6 +178,18 @@ public class ConsumerController extends BasicController{
             return QiqvJSONResult.ok(result);
         }
         return QiqvJSONResult.errorMsg("查询失败");
+    }
+
+    private String updateDataCheck(Consumer consumer){
+        if(consumer==null || consumer.getId()==null){
+            return "更新失败,缺少用户id";
+        }
+        if(StringUtils.isNotBlank(consumer.getEmail())){
+            if(emailValidator.isLegal(consumer.getEmail())){
+                return "邮箱格式不正确，请重新输入";
+            }
+        }
+        return null;
     }
 
 
