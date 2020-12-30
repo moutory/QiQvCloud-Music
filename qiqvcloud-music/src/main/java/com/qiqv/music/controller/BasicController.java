@@ -12,6 +12,9 @@ public class BasicController {
 
     @Autowired
     public RedisOperator redisOperator;
-
+    // 用户登录token
     public static final String USER_TOKEN_SESSION = "user-redis-token";
+    // 验证码
+    public static final String USER_VERIFYCODE_SESSION = "user-redis-verifyCode";
+
 }

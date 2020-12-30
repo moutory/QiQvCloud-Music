@@ -38,7 +38,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry){
         List listOfVerify = Arrays.asList("/consumer/**","/rank/rateSongList","/collect/**","/comment/**");
-        List listOfExc = Arrays.asList("/consumer/login","/consumer/queryUserById","/consumer/getAllConsumer","/collect/getUserCollect","/comment/query**","/comment/allComment");
+        List listOfExc = Arrays.asList("/consumer/login","/consumer/queryUserById","/consumer/getAllConsumer","/consumer/getVerifyCodePic","/collect/getUserCollect","/comment/query**","/comment/allComment");
         registry.addInterceptor(miniInterceptor()).addPathPatterns(listOfVerify)
                 .excludePathPatterns(listOfExc);
         super.addInterceptors(registry);

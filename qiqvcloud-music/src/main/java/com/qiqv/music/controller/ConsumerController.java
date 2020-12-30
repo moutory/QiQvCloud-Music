@@ -6,16 +6,27 @@ import com.qiqv.music.service.ConsumerService;
 import com.qiqv.music.utils.EmailValidator;
 import com.qiqv.music.utils.MD5Utils;
 import com.qiqv.music.utils.QiqvJSONResult;
+import com.qiqv.music.utils.VerifyCodeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -143,24 +154,25 @@ public class ConsumerController extends BasicController{
      * @return
      */
     @PostMapping("/login")
-    public QiqvJSONResult login(@RequestBody Consumer consumer) throws NoSuchAlgorithmException {
-        if(consumer==null || StringUtils.isAnyBlank(consumer.getPassword(),consumer.getUsername())){
-            return QiqvJSONResult.errorMsg("请输入用户名或密码");
+    public QiqvJSONResult login(@RequestBody ConsumerVO consumer) throws NoSuchAlgorithmException {
+        String errorMsg = null;
+        errorMsg = consumerDataCheck(consumer);
+        if(null == errorMsg){
+            Consumer result = consumerService.consumerLogin(consumer.getUsername(),
+                    MD5Utils.getEnCryptionStrByMD5(consumer.getPassword()));
+            // 如果通过校验，则给用户新建一个token
+            if(result != null){
+                String userToken = UUID.randomUUID().toString();
+                // token有效期为半小时
+                redisOperator.setValue(USER_TOKEN_SESSION + ":" + result.getId(),userToken,60*30);
+                ConsumerVO consumerVO = new ConsumerVO();
+                BeanUtils.copyProperties(result,consumerVO);
+                consumerVO.setPassword("");
+                consumerVO.setUserToken(userToken);
+                return QiqvJSONResult.ok(consumerVO);
+            }
         }
-        Consumer result = consumerService.consumerLogin(consumer.getUsername(),
-                MD5Utils.getEnCryptionStrByMD5(consumer.getPassword()));
-        // 如果通过校验，则给用户新建一个token
-        if(result != null){
-            String userToken = UUID.randomUUID().toString();
-            // token有效期为半小时
-            redisOperator.setValue(USER_TOKEN_SESSION + ":" + result.getId(),userToken,60*30);
-            ConsumerVO consumerVO = new ConsumerVO();
-            BeanUtils.copyProperties(result,consumerVO);
-            consumerVO.setPassword("");
-            consumerVO.setUserToken(userToken);
-            return QiqvJSONResult.ok(consumerVO);
-        }
-        return QiqvJSONResult.errorMsg("账号或密码错误，请重新输入");
+        return QiqvJSONResult.errorMsg(errorMsg);
     }
 
     /**
@@ -192,7 +204,70 @@ public class ConsumerController extends BasicController{
         return null;
     }
 
+    /**
+     * 用户登录/注册校验码生成
+     * 生成验证码后，将本次生成验证码操作存入redis中，有效期为3分钟
+     * 键值规则为  USER_VERIFYCODE_SESSION + UUID : 4位数字验证码
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(path = "/getVerifyCodePic",method = RequestMethod.GET)
+    public QiqvJSONResult getVerifyCodePic(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Map<String, String> result = new HashMap<>();
+        VerifyCodeUtils code = new VerifyCodeUtils();
+        // 生成验证码图片
+        BufferedImage image = code.getImage();
+        // 获取验证码四位数字
+        String text = code.getText();
+        // 验证码-键值对存入分别存入redis
+        String verifyCode_key = USER_VERIFYCODE_SESSION+UUID.randomUUID().toString();
+        redisOperator.setValue(verifyCode_key,text,60*3);
+        //进行base64编码
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try{
+            ImageIO.write(image, "png", bos);
+            String string = Base64Utils.encodeToString(bos.toByteArray());
+            result.put("key", verifyCode_key);
+            result.put("image", string);
+            return QiqvJSONResult.ok(result);
+        }catch (IOException e){
+            System.out.println(e);
+        }finally {
+            bos.close();
+        }
+        return QiqvJSONResult.errorMsg("生成验证码失败");
+    }
 
+    /**
+     * 验证码校验
+     * 将用户写入的验证码和保存到redis的验证码比对
+     * @param verifyCode
+     * @return
+     */
+    private String verifyCodeCheck(String verifyCodeKey,String verifyCode){
+        if(StringUtils.isBlank(verifyCode) || StringUtils.isBlank(verifyCodeKey)){
+            return "验证码不能为空";
+        }
+        String value = redisOperator.getValue(verifyCodeKey);
+        // 验证码已过期
+        if(null == value){
+            return "验证码已过期，请刷新后重试";
+            //说明是用户乱填或者有缓存
+        }else if(!verifyCode.equalsIgnoreCase(value)){
+            return "无效的验证码，请刷新后重试";
+        }
+        return null;
+    }
+
+    private String consumerDataCheck(ConsumerVO consumer){
+        String result = null;
+        if(consumer==null || StringUtils.isAnyBlank(consumer.getPassword(),consumer.getUsername())){
+            return "请输入用户名或密码";
+        }
+        result = verifyCodeCheck(consumer.getVerifyKey(),consumer.getVerifyCode());
+        return result;
+    }
 
 
 }
