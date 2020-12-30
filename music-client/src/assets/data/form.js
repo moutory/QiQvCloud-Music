@@ -24,6 +24,9 @@ const rules = {
   ],
   location: [
     { message: '请输入地区', trigger: 'change' }
+  ],
+  verifyCode: [
+    { required: true,message: '请输入验证码',trigger: 'keyup'}
   ]
 }
 

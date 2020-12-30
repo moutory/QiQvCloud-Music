@@ -56,6 +56,8 @@ export const login = (params) => post(`/consumer/login`,params);
 export const queryUserById = (userId) => get(`/consumer/queryUserById?userId=${userId}`);
 // 更新用户信息
 export const updateConsumer = (params) => post(`/consumer/updateConsumer`,params);
+// 生成登录/注册验证码
+export const getVerifyCode = () => get(`/consumer/getVerifyCodePic`);
 
 //===================   歌手相关   ======================================
 

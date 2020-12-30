@@ -98,7 +98,6 @@ export const mixin ={
          *  返回结果格式为二维数组，前一位存储时间，后一位存储歌词
          */
         parseLyric(lyric){
-            console.log('hhh')
             let lines = lyric.split('\n');
             let pattern =  /\[\d{2}:\d{2}.(\d{3}|\d{2})\]/g;
             let result = [];
